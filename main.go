@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -53,6 +54,24 @@ func main() {
 				if err != nil {
 					fmt.Println("Error saving todos:", err)
 				}
+			case "delete":
+				fmt.Print("Enter id of the todo to delete: ")
+				scanner.Scan()
+				input := strings.TrimSpace(scanner.Text())
+
+				id, err := strconv.Atoi(input)
+				if err != nil {
+					fmt.Println("Invalid input please enter a number.")
+					continue
+				}
+
+				err = deleteTodos(&todos, id)
+				if err != nil {
+					fmt.Println("Could not delete: ", err)
+				} else {
+					saveTodos(filename, todos)
+				}
+
 			case "exit":
 				fmt.Println("Bye!")
 				return
@@ -101,4 +120,25 @@ func saveTodos(filname string, todos []Todo) error {
 		return err
 	}
 	return os.WriteFile(filname, data, 0644)
+}
+
+func deleteTodos(todos *[]Todo, id int) error {
+	newTodos := []Todo{}
+	found := false
+
+	for _, t := range *todos {
+		if t.ID != id {
+			newTodos = append(newTodos, t)
+		} else {
+			found = true
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("Todo with ID %d not found.", id)
+	}
+
+	*todos = newTodos
+	fmt.Printf("Todo with ID %d deleted.", id)
+	return nil
 }
