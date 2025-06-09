@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -14,10 +15,13 @@ type Todo struct {
 }
 
 func main() {
-	todos := []Todo{
-		{ID: 1, Title: "Make Todo App", Completed: false},
-	}
+	const filename = "todos.json"
 
+	todos, err := loadTodos(filename)
+	if err != nil {
+		fmt.Println("Error loading todos:", err)
+		return
+	}
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -55,5 +59,35 @@ func main() {
 		}
 
 		todos = append(todos, newTodo)
+
+		err = saveTodos(filename, todos)
+		if err != nil {
+			fmt.Println("Error saving todos:", err)
+		}
 	}
+}
+
+func loadTodos(filename string) ([]Todo, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []Todo{}, nil
+		}
+		return nil, err
+	}
+
+	var todos []Todo
+	err = json.Unmarshal(data, &todos)
+	if err != nil {
+		return nil, err
+	}
+	return todos, nil
+}
+
+func saveTodos(filname string, todos []Todo) error {
+	data, err := json.MarshalIndent(todos, "", " ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filname, data, 0644)
 }
