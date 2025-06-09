@@ -37,34 +37,45 @@ func main() {
 		var text string
 
 		for {
-			fmt.Print("Please add your todo or type exit to quit:")
+			fmt.Print("\nType 'add' to add todo, 'delete' to delete or 'exit' to quit.")
 			scanner.Scan()
-			text = strings.TrimSpace(scanner.Text())
+			cmd := strings.TrimSpace(scanner.Text())
 
-			switch text {
+			switch cmd {
+			case "add":
+				fmt.Print("Enter your todo:")
+				scanner.Scan()
+				text = strings.TrimSpace(scanner.Text())
+				if err := addTodo(text, &todos); err != nil {
+					fmt.Println("Error adding todo:", err)
+				}
+				err = saveTodos(filename, todos)
+				if err != nil {
+					fmt.Println("Error saving todos:", err)
+				}
 			case "exit":
 				fmt.Println("Bye!")
 				return
-			case "":
-				fmt.Println("InvalID Input, todo cannot be empty. Please try again.")
-				continue
 			}
 			break
 		}
-
-		newTodo := Todo{
-			ID:        len(todos) + 1,
-			Title:     text,
-			Completed: false,
-		}
-
-		todos = append(todos, newTodo)
-
-		err = saveTodos(filename, todos)
-		if err != nil {
-			fmt.Println("Error saving todos:", err)
-		}
 	}
+}
+
+func addTodo(text string, todos *[]Todo) error {
+	if text == "" {
+		return fmt.Errorf("Invalid. Empty Todo.")
+	}
+
+	newTodo := Todo{
+		ID:        len(*todos) + 1,
+		Title:     text,
+		Completed: false,
+	}
+
+	*todos = append(*todos, newTodo)
+	fmt.Println("Todo Added!")
+	return nil
 }
 
 func loadTodos(filename string) ([]Todo, error) {
