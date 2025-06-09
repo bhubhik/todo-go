@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
 
 type Todo struct {
 	id        int
@@ -11,15 +16,35 @@ type Todo struct {
 func main() {
 	todos := []Todo{
 		{id: 1, title: "Make Todo App", completed: false},
-		{id: 2, title: "Learn Go", completed: false},
 	}
 
-	fmt.Println("Todo List:")
-	for _, t := range todos {
-		status := " "
-		if t.completed {
-			status = "x"
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		fmt.Println("\nTodo List:")
+		for _, t := range todos {
+			status := " "
+			if t.completed {
+				status = "x"
+			}
+			fmt.Printf("[%s] %d: %s\n", status, t.id, t.title)
 		}
-		fmt.Printf("[%s] %d: %s\n", status, t.id, t.title)
+
+		fmt.Print("\nAdd a new todo (or type 'exit' to quit): ")
+		scanner.Scan()
+		text := strings.TrimSpace(scanner.Text())
+
+		if text == "exit" {
+			fmt.Println("Bye!")
+			break
+		}
+
+		newTodo := Todo{
+			id:        len(todos) + 1,
+			title:     text,
+			completed: false,
+		}
+
+		todos = append(todos, newTodo)
 	}
 }
