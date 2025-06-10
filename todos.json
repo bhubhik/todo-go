@@ -18,5 +18,10 @@
   "ID": 4,
   "Title": "Load Todos",
   "Completed": false
+ },
+ {
+  "ID": 5,
+  "Title": "Test Refactor",
+  "Completed": false
  }
 ]
