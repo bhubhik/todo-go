@@ -28,31 +28,6 @@ func AddTodo(text string, todos *[]Todo) error {
 	return nil
 }
 
-func LoadTodos(filename string) ([]Todo, error) {
-	data, err := os.ReadFile(filename)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return []Todo{}, nil
-		}
-		return nil, err
-	}
-
-	var todos []Todo
-	err = json.Unmarshal(data, &todos)
-	if err != nil {
-		return nil, err
-	}
-	return todos, nil
-}
-
-func SaveTodos(filname string, todos []Todo) error {
-	data, err := json.MarshalIndent(todos, "", " ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(filname, data, 0644)
-}
-
 func DeleteTodos(todos *[]Todo, id int) error {
 	newTodos := []Todo{}
 	found := false
@@ -74,6 +49,23 @@ func DeleteTodos(todos *[]Todo, id int) error {
 	return nil
 }
 
+func LoadTodos(filename string) ([]Todo, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []Todo{}, nil
+		}
+		return nil, err
+	}
+
+	var todos []Todo
+	err = json.Unmarshal(data, &todos)
+	if err != nil {
+		return nil, err
+	}
+	return todos, nil
+}
+
 func PrintTodos(todos []Todo) {
 	fmt.Println("\nTodo List:")
 	for _, t := range todos {
@@ -83,4 +75,12 @@ func PrintTodos(todos []Todo) {
 		}
 		fmt.Printf("[%s] %d: %s\n", status, t.ID, t.Title)
 	}
+}
+
+func SaveTodos(filname string, todos []Todo) error {
+	data, err := json.MarshalIndent(todos, "", " ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filname, data, 0644)
 }
